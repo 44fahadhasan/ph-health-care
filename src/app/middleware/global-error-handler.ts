@@ -12,7 +12,7 @@ export const globalError = (
   next: NextFunction,
 ) => {
   if (envVars.NODE_ENV === "development") {
-    console.error("Global Error:", err);
+    console.error("❌ [GLOBAL ERROR]", err);
   }
 
   const statusCode: number = status.INTERNAL_SERVER_ERROR;
