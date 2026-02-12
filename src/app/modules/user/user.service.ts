@@ -1,4 +1,6 @@
+import status from "http-status";
 import { Role } from "../../../generated/prisma/client";
+import AppError from "../../error-helpers/app-error";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import { IRegisterDoctorPayload } from "./user.interface";
@@ -13,7 +15,10 @@ const registerDoctor = async (payload: IRegisterDoctorPayload) => {
     });
 
     if (!specialty) {
-      throw new Error(`Specialty not found with id: ${specialtyId}`);
+      throw new AppError(
+        status.NOT_FOUND,
+        `Specialty not found with id: ${specialtyId}`,
+      );
     }
 
     specialties.push(specialty);
@@ -30,7 +35,7 @@ const registerDoctor = async (payload: IRegisterDoctorPayload) => {
   });
 
   if (!newUser.user) {
-    throw new Error("Failed to register doctor");
+    throw new AppError(status.BAD_REQUEST, "Failed to register doctor");
   }
 
   try {
