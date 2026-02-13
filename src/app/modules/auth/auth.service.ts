@@ -8,7 +8,11 @@ import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import { jwtUtils } from "../../utils/jwt";
 import { tokenUtils } from "../../utils/token";
-import { IRegisterPatient, IUserLogin } from "./auth.interface";
+import {
+  IChangePasswordPayload,
+  IRegisterPatient,
+  IUserLogin,
+} from "./auth.interface";
 
 const getMe = (user: IReqUser) => {
   const userExists = prisma.user.findUnique({
@@ -183,9 +187,70 @@ const refreshTokens = async (
   };
 };
 
+const changePassword = async (
+  payload: IChangePasswordPayload,
+  sessionToken: string,
+) => {
+  const session = await auth.api.getSession({
+    headers: new Headers({
+      Authorization: `Bearer ${sessionToken}`,
+    }),
+  });
+
+  if (!session) {
+    throw new AppError(
+      status.UNAUTHORIZED,
+      "Unauthorized access! Invalid session token provided.",
+    );
+  }
+
+  const result = await auth.api.changePassword({
+    headers: new Headers({
+      Authorization: `Bearer ${sessionToken}`,
+    }),
+    body: {
+      revokeOtherSessions: true,
+      newPassword: payload.newPassword,
+      currentPassword: payload.currentPassword,
+    },
+  });
+
+  const user = session.user;
+
+  const tokenPayload: IReqUser = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    isDeleted: user.isDeleted,
+    emailVerified: user.emailVerified,
+  };
+
+  const accessToken = tokenUtils.generateAccessToken(tokenPayload);
+  const refreshToken = tokenUtils.generateRefreshToken(tokenPayload);
+
+  return {
+    ...result,
+    accessToken,
+    refreshToken,
+  };
+};
+
+const userLogout = async (sessionToken: string) => {
+  const result = await auth.api.signOut({
+    headers: new Headers({
+      Authorization: `Bearer ${sessionToken}`,
+    }),
+  });
+
+  return result;
+};
+
 export const authServices = {
   getMe,
   userLogin,
   registerPatient,
   refreshTokens,
+  changePassword,
+  userLogout,
 };

@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { bearer } from "better-auth/plugins";
 import ms, { StringValue } from "ms";
 import { envVars } from "../../config/env";
 import { Role, UserStatus } from "../../generated/prisma/enums";
@@ -50,6 +51,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [bearer()],
   session: {
     expiresIn: sesExpInSec,
     updateAge: sesUpdateInSec,

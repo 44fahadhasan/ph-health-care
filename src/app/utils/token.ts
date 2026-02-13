@@ -47,10 +47,31 @@ const setBetterAuthSessionTokenToCookie = (res: Response, token: string) => {
   cookieUtils.setCookie(res, key, token, options);
 };
 
+const clearAccessTokenFromCookie = (res: Response) => {
+  const key = "accessToken";
+  const options = cookieUtils.cookieOptions("0");
+  cookieUtils.clearCookie(res, key, options);
+};
+
+const clearRefreshTokenFromCookie = (res: Response) => {
+  const key = "refreshToken";
+  const options = cookieUtils.cookieOptions("0");
+  cookieUtils.clearCookie(res, key, options);
+};
+
+const clearBetterAuthSessionTokenFromCookie = (res: Response) => {
+  const key = "session_token";
+  const options = cookieUtils.cookieOptions("0");
+  cookieUtils.clearCookie(res, key, options);
+};
+
 export const tokenUtils = {
   generateAccessToken,
   generateRefreshToken,
   setAccessTokenToCookie,
   setRefreshTokenToCookie,
   setBetterAuthSessionTokenToCookie,
+  clearAccessTokenFromCookie,
+  clearRefreshTokenFromCookie,
+  clearBetterAuthSessionTokenFromCookie,
 };

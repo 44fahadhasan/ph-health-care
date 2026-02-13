@@ -94,9 +94,66 @@ const refreshTokens = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  const currentSessionToken = cookieUtils.getCookie(req, "session_token");
+
+  if (!currentSessionToken) {
+    throw new AppError(
+      status.UNAUTHORIZED,
+      "Unauthorized access! No session token provided.",
+    );
+  }
+
+  const result = await authServices.changePassword(
+    payload,
+    currentSessionToken,
+  );
+
+  const { accessToken, refreshToken, token } = result;
+
+  tokenUtils.setAccessTokenToCookie(res, accessToken);
+  tokenUtils.setRefreshTokenToCookie(res, refreshToken);
+  tokenUtils.setBetterAuthSessionTokenToCookie(res, token!);
+
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "Password changed success!",
+    data: result,
+  });
+});
+
+const userLogout = catchAsync(async (req: Request, res: Response) => {
+  const currentSessionToken = cookieUtils.getCookie(req, "session_token");
+
+  if (!currentSessionToken) {
+    throw new AppError(
+      status.UNAUTHORIZED,
+      "Unauthorized access! No session token provided.",
+    );
+  }
+
+  const result = await authServices.userLogout(currentSessionToken);
+
+  tokenUtils.clearAccessTokenFromCookie(res);
+  tokenUtils.clearRefreshTokenFromCookie(res);
+  tokenUtils.clearBetterAuthSessionTokenFromCookie(res);
+
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "Logout success!",
+    data: result,
+  });
+});
+
 export const authController = {
   userLogin,
   registerPatient,
   getMe,
   refreshTokens,
+  changePassword,
+  userLogout,
 };
