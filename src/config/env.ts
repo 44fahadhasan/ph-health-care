@@ -17,6 +17,11 @@ interface IEnvConfig {
   ACCESS_TOKEN_EXPIRES_IN: string;
   REFRESH_TOKEN_EXPIRES_IN: string;
   COOKIE_SECRET: string;
+  EMAIL_SENDER_SMTP_USER: string;
+  EMAIL_SENDER_SMTP_PASS: string;
+  EMAIL_SENDER_SMTP_HOST: string;
+  EMAIL_SENDER_SMTP_PORT: string;
+  EMAIL_SENDER_SMTP_FROM: string;
 }
 
 const requiredEnvVariables: string[] = [
@@ -33,6 +38,11 @@ const requiredEnvVariables: string[] = [
   "ACCESS_TOKEN_EXPIRES_IN",
   "REFRESH_TOKEN_EXPIRES_IN",
   "COOKIE_SECRET",
+  "EMAIL_SENDER_SMTP_USER",
+  "EMAIL_SENDER_SMTP_PASS",
+  "EMAIL_SENDER_SMTP_HOST",
+  "EMAIL_SENDER_SMTP_PORT",
+  "EMAIL_SENDER_SMTP_FROM",
 ];
 
 const loadEnvVariables = (): IEnvConfig => {
@@ -62,6 +72,11 @@ const loadEnvVariables = (): IEnvConfig => {
     ACCESS_TOKEN_EXPIRES_IN: process.env.ACCESS_TOKEN_EXPIRES_IN!,
     REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN!,
     COOKIE_SECRET: process.env.COOKIE_SECRET!,
+    EMAIL_SENDER_SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER!,
+    EMAIL_SENDER_SMTP_PASS: process.env.EMAIL_SENDER_SMTP_PASS!,
+    EMAIL_SENDER_SMTP_HOST: process.env.EMAIL_SENDER_SMTP_HOST!,
+    EMAIL_SENDER_SMTP_PORT: process.env.EMAIL_SENDER_SMTP_PORT!,
+    EMAIL_SENDER_SMTP_FROM: process.env.EMAIL_SENDER_SMTP_FROM!,
   };
 };
 

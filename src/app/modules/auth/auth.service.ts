@@ -12,6 +12,7 @@ import {
   IChangePasswordPayload,
   IRegisterPatient,
   IUserLogin,
+  IVerifyEmail,
 } from "./auth.interface";
 
 const getMe = (user: IReqUser) => {
@@ -246,6 +247,26 @@ const userLogout = async (sessionToken: string) => {
   return result;
 };
 
+const verifyEmail = async (payload: IVerifyEmail) => {
+  const result = await auth.api.verifyEmailOTP({
+    body: {
+      email: payload.email,
+      otp: payload.otp,
+    },
+  });
+
+  if (result.status && !result.user.emailVerified) {
+    await prisma.user.update({
+      where: {
+        email: payload.email,
+      },
+      data: {
+        emailVerified: true,
+      },
+    });
+  }
+};
+
 export const authServices = {
   getMe,
   userLogin,
@@ -253,4 +274,5 @@ export const authServices = {
   refreshTokens,
   changePassword,
   userLogout,
+  verifyEmail,
 };

@@ -12,6 +12,7 @@ router.get(
 );
 router.post("/login", authController.userLogin);
 router.post("/register", authController.registerPatient);
+router.post("/verify-email", authController.verifyEmail);
 router.post("/refresh-tokens", authController.refreshTokens);
 router.post(
   "/change-password",
