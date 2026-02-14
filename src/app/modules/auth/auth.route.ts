@@ -19,6 +19,8 @@ router.post(
   checkAuth(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR, Role.PATIENT),
   authController.changePassword,
 );
+router.post("/forgot-password", authController.requestPasswordReset);
+router.post("/reset-password", authController.passwordReset);
 router.post(
   "/logout",
   checkAuth(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR, Role.PATIENT),

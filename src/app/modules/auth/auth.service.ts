@@ -10,6 +10,7 @@ import { jwtUtils } from "../../utils/jwt";
 import { tokenUtils } from "../../utils/token";
 import {
   IChangePasswordPayload,
+  IPasswordRest,
   IRegisterPatient,
   IUserLogin,
   IVerifyEmail,
@@ -267,6 +268,81 @@ const verifyEmail = async (payload: IVerifyEmail) => {
   }
 };
 
+const requestPasswordReset = async (email: string) => {
+  const userExists = await prisma.user.findUnique({
+    where: { email: email },
+  });
+
+  if (!userExists) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "Your account not found with this email",
+    );
+  }
+
+  if (!userExists.emailVerified) {
+    throw new AppError(status.BAD_REQUEST, "Email not verified");
+  }
+
+  if (userExists.isDeleted || userExists.status == "DELETED") {
+    throw new AppError(status.BAD_REQUEST, "Your account was deleted");
+  }
+
+  if (userExists.status == "BLOCKED") {
+    throw new AppError(status.BAD_REQUEST, "Your account was blocked");
+  }
+
+  await auth.api.requestPasswordResetEmailOTP({
+    body: { email },
+  });
+};
+
+const passwordReset = async (payload: IPasswordRest) => {
+  const userExists = await prisma.user.findUnique({
+    where: { email: payload.email },
+  });
+
+  if (!userExists) {
+    throw new AppError(
+      status.NOT_FOUND,
+      "Your account not found with this email",
+    );
+  }
+
+  if (!userExists.emailVerified) {
+    throw new AppError(status.BAD_REQUEST, "Email not verified");
+  }
+
+  if (userExists.isDeleted || userExists.status == "DELETED") {
+    throw new AppError(status.BAD_REQUEST, "Your account was deleted");
+  }
+
+  if (userExists.status == "BLOCKED") {
+    throw new AppError(status.BAD_REQUEST, "Your account was blocked");
+  }
+
+  const result = await auth.api.resetPasswordEmailOTP({
+    body: {
+      email: payload.email,
+      otp: payload.otp,
+      password: payload.newPassword,
+    },
+  });
+
+  if (!result) {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      "Failed to your password reset!",
+    );
+  }
+
+  await prisma.session.deleteMany({
+    where: {
+      userId: userExists.id,
+    },
+  });
+};
+
 export const authServices = {
   getMe,
   userLogin,
@@ -275,4 +351,6 @@ export const authServices = {
   changePassword,
   userLogout,
   verifyEmail,
+  requestPasswordReset,
+  passwordReset,
 };

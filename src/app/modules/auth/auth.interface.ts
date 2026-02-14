@@ -18,3 +18,9 @@ export interface IVerifyEmail {
   email: string;
   otp: string;
 }
+
+export interface IPasswordRest {
+  otp: string;
+  email: string;
+  newPassword: string;
+}

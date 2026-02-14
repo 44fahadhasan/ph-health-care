@@ -80,6 +80,24 @@ export const auth = betterAuth({
             });
           }
         }
+
+        if (type === "forget-password") {
+          const user = await prisma.user.findUnique({
+            where: { email },
+          });
+
+          if (user) {
+            sendMail({
+              to: email,
+              subject: "Forget your password",
+              templateName: "forget-password",
+              templateData: {
+                name: user.name,
+                otp,
+              },
+            });
+          }
+        }
       },
       expiresIn: 5 * 60,
       otpLength: 5,
