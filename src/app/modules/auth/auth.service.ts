@@ -219,6 +219,17 @@ const changePassword = async (
 
   const user = session.user;
 
+  if (user.needPasswordChange) {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        needPasswordChange: false,
+      },
+    });
+  }
+
   const tokenPayload: IReqUser = {
     id: user.id,
     email: user.email,
@@ -334,6 +345,17 @@ const passwordReset = async (payload: IPasswordRest) => {
       status.INTERNAL_SERVER_ERROR,
       "Failed to your password reset!",
     );
+  }
+
+  if (userExists.needPasswordChange) {
+    await prisma.user.update({
+      where: {
+        id: userExists.id,
+      },
+      data: {
+        needPasswordChange: false,
+      },
+    });
   }
 
   await prisma.session.deleteMany({
