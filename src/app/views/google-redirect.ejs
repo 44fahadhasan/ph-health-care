@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Continue with Google • PH Health Care</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
+          sans-serif;
+        color: #1f2937;
+      }
+
+      .container {
+        max-width: 520px;
+        margin: 60px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4285f4, #34a853);
+        padding: 32px 24px;
+        text-align: center;
+        color: #ffffff;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+      }
+
+      .header p {
+        margin-top: 6px;
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 40px 30px;
+        text-align: center;
+      }
+
+      .content p {
+        font-size: 15px;
+        color: #4b5563;
+        line-height: 1.7;
+      }
+
+      .spinner {
+        width: 42px;
+        height: 42px;
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #4285f4;
+        border-radius: 50%;
+        margin: 28px auto 10px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        font-size: 14px;
+        color: #6b7280;
+        margin-top: 10px;
+      }
+
+      .error-box {
+        display: none;
+        margin-top: 24px;
+        background: #fee2e2;
+        color: #b91c1c;
+        padding: 14px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .retry-btn {
+        display: none;
+        margin-top: 20px;
+        background: #4285f4;
+        color: white;
+        padding: 12px 26px;
+        border-radius: 8px;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(66, 133, 244, 0.3);
+      }
+
+      .retry-btn:hover {
+        background: #357ae8;
+      }
+
+      .footer {
+        background: #f1f5f9;
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .footer a {
+        color: #4285f4;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>PH Health Care</h1>
+        <p>Secure Google Authentication</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <p>
+          You are being securely redirected to Google to continue signing in to
+          <strong>PH Health Care</strong>.
+        </p>
+
+        <div class="spinner" id="spinner"></div>
+        <div class="loading-text" id="loading">Connecting to Google…</div>
+
+        <div id="error-box" class="error-box"></div>
+
+        <button id="manual-btn" class="retry-btn">Try Again</button>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        © <%= new Date().getFullYear() %> PH Health Care. All rights reserved.
+        <br />
+        Need help?
+        <a href="mailto:44fahadhasan@gamil.com">support@phhealthcare.com</a>
+      </div>
+    </div>
+
+    <script>
+      const errorBox = document.getElementById("error-box");
+      const loading = document.getElementById("loading");
+      const spinner = document.getElementById("spinner");
+      const manualBtn = document.getElementById("manual-btn");
+
+      async function startGoogleAuth() {
+        try {
+          const res = await fetch(
+            "<%= betterAuthUrl %>/api/auth/sign-in/social",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                provider: "google",
+                callbackURL: "<%= callbackUrl %>",
+              }),
+            },
+          );
+
+          const data = await res.json();
+
+          if (!res.ok || !data.url) {
+            throw new Error(data.message || "Unable to connect with Google");
+          }
+
+          window.location.href = data.url;
+        } catch (error) {
+          spinner.style.display = "none";
+          loading.style.display = "none";
+          errorBox.textContent =
+            error.message || "Authentication failed. Please try again.";
+          errorBox.style.display = "block";
+          manualBtn.style.display = "inline-block";
+        }
+      }
+
+      manualBtn.addEventListener("click", () => {
+        location.reload();
+      });
+
+      startGoogleAuth();
+    </script>
+  </body>
+</html>

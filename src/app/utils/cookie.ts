@@ -1,8 +1,5 @@
 import { CookieOptions, Request, Response } from "express";
 import ms, { StringValue } from "ms";
-import { envVars } from "../../config/env";
-
-const isProd = envVars.NODE_ENV === "production";
 
 const cookieOptions = (age: string) => {
   const ageInMs = ms(age as StringValue);
@@ -11,7 +8,7 @@ const cookieOptions = (age: string) => {
     path: "/",
     signed: true,
     httpOnly: true,
-    secure: isProd,
+    secure: true,
     maxAge: ageInMs,
     sameSite: "none",
   };

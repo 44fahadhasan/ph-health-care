@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import ejs from "ejs";
 import status from "http-status";
-import path from "node:path";
 import nodemailer from "nodemailer";
+import path from "path";
 import { envVars } from "../../config/env";
 import AppError from "../error-helpers/app-error";
 import { ISendMailOptions } from "../interfaces/send-mail-option.interface";

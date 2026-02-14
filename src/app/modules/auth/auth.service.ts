@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import status from "http-status";
 import ms, { StringValue } from "ms";
 import { envVars } from "../../../config/env";
@@ -365,6 +366,41 @@ const passwordReset = async (payload: IPasswordRest) => {
   });
 };
 
+const googleLoginSuccess = async (session: Record<string, any>) => {
+  const isPatientExists = await prisma.patient.findUnique({
+    where: {
+      email: session.user.email as string,
+    },
+  });
+
+  if (!isPatientExists) {
+    await prisma.patient.create({
+      data: {
+        userId: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+      },
+    });
+  }
+
+  const tokenPayload: IReqUser = {
+    id: session.user.id,
+    email: session.user.email,
+    role: session.user.role,
+    status: session.user.status,
+    isDeleted: session.user.isDeleted,
+    emailVerified: session.user.emailVerified,
+  };
+
+  const accessToken = tokenUtils.generateAccessToken(tokenPayload);
+  const refreshToken = tokenUtils.generateRefreshToken(tokenPayload);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
 export const authServices = {
   getMe,
   userLogin,
@@ -375,4 +411,5 @@ export const authServices = {
   verifyEmail,
   requestPasswordReset,
   passwordReset,
+  googleLoginSuccess,
 };

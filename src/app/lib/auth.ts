@@ -1,10 +1,12 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, CookieOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer, emailOTP } from "better-auth/plugins";
 import ms, { StringValue } from "ms";
 import { envVars } from "../../config/env";
-import { Role, UserStatus } from "../../generated/prisma/enums";
+import { Role } from "../../generated/prisma/enums";
+import { cookieUtils } from "../utils/cookie";
 import { sendMail } from "../utils/email";
+import { UserStatus } from "./../../generated/prisma/enums";
 import { prisma } from "./prisma";
 
 const sesExpInSec =
@@ -16,7 +18,14 @@ const sesUpdateInSec =
 const cookieCacheInSec =
   ms(envVars.BETTER_AUTH_SESSION_TOKEN_COOKIE_CACHE_AGE as StringValue) / 1000;
 
+const cookieOption = cookieUtils.cookieOptions(
+  envVars.ACCESS_TOKEN_EXPIRES_IN,
+) as CookieOptions;
+
 export const auth = betterAuth({
+  appName: "My App",
+  baseURL: envVars.BETTER_AUTH_URL,
+  secret: envVars.BETTER_AUTH_SECRET,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -57,6 +66,16 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     sendOnSignIn: true,
     autoSignInAfterVerification: true,
+  },
+  socialProviders: {
+    google: {
+      clientId: envVars.GOOGLE_CLIENT_ID,
+      clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+      mapProfileToUser: () => ({
+        role: Role.PATIENT,
+        needPasswordChange: false,
+      }),
+    },
   },
   plugins: [
     bearer(),
@@ -110,5 +129,11 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: cookieCacheInSec,
     },
+  },
+  trustedOrigins: [envVars.BETTER_AUTH_URL, envVars.FRONT_END_URL],
+  advanced: {
+    cookiePrefix: "my-app",
+    useSecureCookies: true,
+    defaultCookieAttributes: cookieOption,
   },
 });
