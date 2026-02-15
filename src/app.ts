@@ -26,6 +26,7 @@ app.set("views", path.resolve(process.cwd(), "src/app/views"));
 app.use("/api/auth/", toNodeHandler(auth));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(envVars.COOKIE_SECRET));
 
 app.get("/", (req: Request, res: Response) => {

@@ -3,12 +3,13 @@
 import { NextFunction, Request, Response } from "express";
 import status from "http-status";
 import z from "zod";
+import { deleteFileFromCloudinary } from "../../config/cloudinary.config";
 import { envVars } from "../../config/env";
 import AppError from "../error-helpers/app-error";
 import { handleZodError } from "../error-helpers/handle-zod-error";
 import { IErrorResponse, IErrorSource } from "../interfaces/error.interface";
 
-export const globalError = (
+export const globalError = async (
   err: any,
   req: Request,
   res: Response,
@@ -16,6 +17,16 @@ export const globalError = (
 ) => {
   if (envVars.NODE_ENV === "development") {
     console.error("❌ [GLOBAL ERROR]", err);
+  }
+
+  if (req.file) {
+    await deleteFileFromCloudinary(req.file.path);
+  }
+
+  if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+    const urls = req.files.map((file) => file.path);
+
+    await Promise.all(urls.map((url) => deleteFileFromCloudinary(url)));
   }
 
   let statusCode: number = status.INTERNAL_SERVER_ERROR;

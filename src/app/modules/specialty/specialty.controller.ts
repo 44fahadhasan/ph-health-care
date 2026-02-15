@@ -16,7 +16,10 @@ const getSpecialty = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createSpecialty = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+  const payload = {
+    ...req.body,
+    icon: req.file?.path,
+  };
 
   const result = await specialtyService.createSpecialty(payload);
 

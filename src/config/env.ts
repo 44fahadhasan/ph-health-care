@@ -26,6 +26,11 @@ interface IEnvConfig {
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_CALLBACK_URL: string;
   FRONT_END_URL: string;
+  CLOUDINARY: {
+    CLOUDINARY_CLOUD_NAME: string;
+    CLOUDINARY_API_KEY: string;
+    CLOUDINARY_API_SECRET: string;
+  };
 }
 
 const requiredEnvVariables: string[] = [
@@ -51,6 +56,9 @@ const requiredEnvVariables: string[] = [
   "GOOGLE_CLIENT_SECRET",
   "GOOGLE_CALLBACK_URL",
   "FRONT_END_URL",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
 ];
 
 const loadEnvVariables = (): IEnvConfig => {
@@ -89,6 +97,11 @@ const loadEnvVariables = (): IEnvConfig => {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
     GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL!,
     FRONT_END_URL: process.env.FRONT_END_URL!,
+    CLOUDINARY: {
+      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,
+      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,
+      CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!,
+    },
   };
 };
 
