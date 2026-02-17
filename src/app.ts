@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
 import path from "path";
+import qs from "qs";
 import { auth } from "./app/lib/auth";
 import { globalError } from "./app/middleware/global-error-handler";
 import { notFound } from "./app/middleware/not-found";
@@ -18,6 +19,8 @@ app.use(
     origin: [envVars.BETTER_AUTH_URL, envVars.FRONT_END_URL],
   }),
 );
+
+app.set("query parser", (srt: string) => qs.parse(srt));
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve(process.cwd(), "src/app/views"));

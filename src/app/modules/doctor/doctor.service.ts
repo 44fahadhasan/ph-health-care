@@ -1,30 +1,51 @@
+import { Doctor } from "../../../generated/prisma/client";
+import {
+  DoctorInclude,
+  DoctorWhereInput,
+} from "../../../generated/prisma/models";
+import { IQueryParams } from "../../interfaces/query.interface";
 import { prisma } from "../../lib/prisma";
+import { QueryBuilder } from "../../utils/query-builder";
+import { doctorConstant } from "./doctor.constant";
 import { DoctorUpdatePayload } from "./doctor.interface";
 
-const getDoctors = async () => {
-  const doctors = await prisma.doctor.findMany({
-    include: {
+export const getDoctors = async (queryParams: IQueryParams) => {
+  const queryBuilder = new QueryBuilder<
+    Doctor,
+    DoctorWhereInput,
+    DoctorInclude
+  >(prisma.doctor, queryParams, doctorConstant.queryConfig);
+
+  const doctors = await queryBuilder
+    .where({
+      isDeleted: false,
+    })
+    .search()
+    .filter()
+    .fields()
+    .include({
+      user: {
+        select: {
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
       specialties: {
         select: {
           specialty: {
             select: {
-              id: true,
               title: true,
+              icon: true,
             },
           },
         },
       },
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          status: true,
-          emailVerified: true,
-        },
-      },
-    },
-  });
+    })
+    .dynamicInclude(doctorConstant.dynamicIncludeConfig)
+    .sort()
+    .pagination()
+    .execute();
 
   return doctors;
 };
