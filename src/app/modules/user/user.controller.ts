@@ -17,6 +17,20 @@ const registerDoctor = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const registerAdmin = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  const result = await userServices.registerAdmin(payload);
+
+  sendResponse(res, {
+    httpStatusCode: status.CREATED,
+    success: true,
+    message: "Admin registered successfully",
+    data: result,
+  });
+});
+
 export const userController = {
   registerDoctor,
+  registerAdmin,
 };
